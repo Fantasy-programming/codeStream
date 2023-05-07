@@ -1,20 +1,26 @@
 <h1 class="text-center mx-auto">Contact us !</h1>
 
 <div class="row">
-    <form method="post" class="col-md-6 col-md-offset-3 mx-auto">
+    <form method="post" action="/contact" class="col-md-6 col-md-offset-3 mx-auto">
+        {{#each errorMessages}}
+        <div class="alert alert-danger" role="alert">
+            {{this.msg}}
+        </div>
+        {{/each}}
         <div class="mb-3">
-            <label for="Input your name" class="form-label">Name</label>
-            <input type="text" id="ContactName" class="form-control" aria-describedby="NameHelp">
-            <div id="NameHelp" class="form-text">Wo are you pls!.</div>
+            <label for="name" class="form-label">Name</label>
+            <input type="text" id="name" name="name" class="form-control" aria-describedby="NameHelp" value={{name}}>
+            <div id="NameHelp" class="form-text">Who are you, please?</div>
         </div>
         <div class="mb-3">
-            <label for="InputEmail" class="form-label">Email address</label>
-            <input type="email" class="form-control" id="ContactEmail" aria-describedby="emailHelp">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" name="email" id="email" class="form-control" aria-describedby="emailHelp"
+                value={{email}}>
             <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
         </div>
         <div class="mb-3">
-            <label for="Message" class="form-label">Message</label>
-            <textarea class="form-control" id="ContactMessage" rows="3"></textarea>
+            <label for="message" class="form-label">Message</label>
+            <textarea name="message" id="message" class="form-control" rows="3">{{message}}</textarea>
         </div>
         <button type="submit" class="btn btn-outline-secondary">Submit</button>
     </form>
