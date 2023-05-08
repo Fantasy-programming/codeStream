@@ -4,27 +4,18 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
+const flash = require('connect-flash');
 const passport = require('passport');
 const session = require('express-session');
+
+// env variables & passport
+require('dotenv').config();
 require('./passport');
 
-
-require('dotenv').config();
-
-var indexRoute = require('./routes/index');
-var authRoute = require('./routes/auth');
-
+// Create app
 var app = express();
 
-// connect to mongodb
-mongoose.connect(process.env.MONGODB_URI);
-global.User = require('./models/user');
-
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
-
+// Setup Middleware
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -35,13 +26,21 @@ app.use(session({
   saveUninitialized: true,
 }));
 
+// Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
+// View Engine Setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'hbs');
+
+//Setup up static Files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Inject user object to all views (if authenticated)
+//setup flash
+app.use(flash());
 
+// Inject user object to all views (if authenticated)
 app.use(function (req, res, next) {
   if (req.isAuthenticated()) {
     res.locals.user = req.user;
@@ -49,6 +48,9 @@ app.use(function (req, res, next) {
   next();
 });
 
+// Setup Routes
+var indexRoute = require('./routes/index');
+var authRoute = require('./routes/auth');
 app.use('/', indexRoute);
 app.use('/', authRoute);
 
@@ -67,5 +69,11 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
+// connect to mongodb
+mongoose.connect(process.env.MONGODB_URI);
+global.User = require('./models/user');
+
 
 module.exports = app;

@@ -1,15 +1,12 @@
 var express = require('express');
 var router = express.Router();
+const flash = require('connect-flash');
+router.use(flash());
 var passport = require('passport');
 const { body, validationResult } = require('express-validator');
 
 // env variables
 require('dotenv').config();
-
-
-
-
-
 
 router.route("/login")
     .get(function (req, res, next) {
@@ -33,9 +30,24 @@ router.post('/login', [
                 successRedirect: '/',
                 failureRedirect: '/login',
                 failureFlash: true
+            }, function (err, user, info) {
+                if (err) {
+                    return next(err);
+                }
+                if (!user) {
+                    req.flash('message', 'Invalid email or password');
+                    return res.redirect('/login');
+                }
+                req.logIn(user, function (err) {
+                    if (err) {
+                        return next(err);
+                    }
+                    return res.redirect('/');
+                });
             })(req, res, next);
         }
     });
+
 
 router.route("/register")
     .get(function (req, res, next) {
@@ -78,6 +90,15 @@ router.post('/register', [
         }
 
     }
+});
+
+router.get('/logout', function (req, res) {
+    req.logout(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/');
+    });
 });
 
 module.exports = router;
