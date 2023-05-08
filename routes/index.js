@@ -69,6 +69,7 @@ router.route("/contact")
     res.render('contact', { title: 'Codeshare, pair programming platform' });
   });
 
+
 router.post('/contact', [
   body('name').notEmpty().withMessage('Name is required'),
   body('email').isEmail().normalizeEmail().withMessage('Invalid email address'),
