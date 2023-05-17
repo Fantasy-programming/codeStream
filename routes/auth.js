@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const flash = require('connect-flash');
 router.use(flash());
-var passport = require('passport');
+const passport = require('passport');
 const { body, validationResult } = require('express-validator');
 
 // env variables
@@ -78,7 +78,7 @@ router.post('/register', [
             errorMessages: errors.array()
         });
     } else {
-        var user = new User();
+        const user = new User();
         user.name = req.body.name;
         user.email = req.body.email;
         user.setPassword(req.body.password);

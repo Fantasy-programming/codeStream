@@ -1,0 +1,91 @@
+<div>
+        <div class="row">
+                <div class="col-md-8">
+                        <textarea id="code-screen"></textarea>
+                </div>
+                <div class="col-md-4" id="chatbox">
+                        <div class="card border-dark">
+                                <div class="card-header">
+                                        CHAT-ROOM
+                                        <span class="float-end" id="chatbox-username">
+                                                {{#if user}}
+                                                {{user.name}}
+                                                {{/if}}
+                                        </span>
+                                </div>
+                                <div class="card-body">
+                                        <ul class="list-group" id="chat" style="heigh: 300px; overflow-y: scroll">
+                                        </ul>
+                                </div>
+                                <div class="card-footer">
+                                        <div class="input-group">
+                                                <input type="text" id="chat-input" class="form-control"
+                                                        placeholder="Type your message here...">
+                                                <span class="input-group-btn">
+                                                        <button class="btn btn-primary"
+                                                                onclick="sendMessage()">Send</button>
+                                                </span>
+                                        </div>
+                                </div>
+                        </div>
+
+
+                </div>
+
+
+        </div>
+
+</div>
+<input type="hidden" id="roomId" value="{{roomId}}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"
+        integrity="sha512-ynXrDC1C/24meHduKhg/aPPd5xL1PBd3FKffQK8v4mXhBJUmf5dE00zzPhIi18NAGHoCp0VVWWWZa1FMTPNpJQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/javascript/javascript.min.js"
+        integrity="sha512-bUk2sux3P7uLquCvq468k9PZKhxds682+NJUbMr288xoDrPPHHZH9H9CsZDJhEdgUR/2OVaAyi9YwygcAXWLhw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+        const socket = io.connect('http://localhost:3000');
+
+        const editor = CodeMirror.fromTextArea(document.getElementById("code-screen"), {
+                lineNumbers: true,
+                theme: "monokai",
+        });
+
+        var username = $("#chatbox-username").val();
+
+        if (username === "") {
+                const userid = Math.floor(Math.random() * 9999).toString();
+                username = "User" + userid;
+                $("#chatbox-username").text(username);
+        }
+
+        const roomId = $("#roomId").val();
+
+        socket.emit("joinRoom", { room: roomId });
+
+
+        const userMessage = function (name, text) {
+                return (
+                        '<li class="media"><div class="media-body"><div class="media">' +
+                        '<div class="media-body">' +
+                        '<b>' + name + '</b> : ' + text + '<hr/> </div> </div></div></li>'
+                );
+        };
+
+        const sendMessage = function () {
+                const message = $("#chat-input").val();
+                if (message !== "") {
+                        socket.emit("new-message", { message: message, username: username });
+                        $("#chat-input").val("");
+                }
+        };
+
+        socket.on("new-message", function (data) {
+                $("#chat").append(userMessage(data.username, data.message));
+        });
+
+
+</script>

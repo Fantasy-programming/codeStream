@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var crypto = require('crypto');
+const mongoose = require('mongoose');
+const crypto = require('crypto');
 
-var userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     email: { type: String, unique: true, required: true },
     name: { type: String, required: true },
     hash: String,
@@ -14,7 +14,7 @@ userSchema.methods.setPassword = function (password) {
 };
 
 userSchema.methods.validPassword = function (password) {
-    var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex'); // pbkdf2Sync() generates a hash
+    const hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex'); // pbkdf2Sync() generates a hash
     return this.hash === hash;
  };
 

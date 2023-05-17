@@ -13,7 +13,7 @@ require('dotenv').config();
 require('./passport');
 
 // Create app
-var app = express();
+const app = express();
 
 // Setup Middleware
 app.use(logger('dev'));
@@ -49,18 +49,20 @@ app.use(function (req, res, next) {
 });
 
 // Setup Routes
-var indexRoute = require('./routes/index');
-var authRoute = require('./routes/auth');
+const indexRoute = require('./routes/index');
+const authRoute = require('./routes/auth');
+const taskRoute = require('./routes/task');
 app.use('/', indexRoute);
 app.use('/', authRoute);
+app.use('/', taskRoute);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function (_req, _res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res, _next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -74,6 +76,6 @@ app.use(function (err, req, res, next) {
 // connect to mongodb
 mongoose.connect(process.env.MONGODB_URI);
 global.User = require('./models/user');
-
+global.Task = require('./models/task');
 
 module.exports = app;
