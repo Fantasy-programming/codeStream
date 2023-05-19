@@ -9,7 +9,7 @@ const { body, validationResult } = require('express-validator');
 require('dotenv').config();
 
 router.route("/login")
-    .get(function (req, res, next) {
+    .get(function (_req, res, _next) {
         res.render('login', { title: 'Login page' });
     });
 
@@ -30,7 +30,7 @@ router.post('/login', [
                 successRedirect: '/',
                 failureRedirect: '/login',
                 failureFlash: true
-            }, function (err, user, info) {
+            }, function (err, user, _info) {
                 if (err) {
                     return next(err);
                 }
@@ -50,7 +50,7 @@ router.post('/login', [
 
 
 router.route("/register")
-    .get(function (req, res, next) {
+    .get(function (_req, res, _next) {
         res.render('register', { title: 'Register page' });
     });
 

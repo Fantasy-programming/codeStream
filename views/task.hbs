@@ -1,7 +1,7 @@
 <div>
         <div class="row">
                 <div class="col-md-8">
-                        <textarea id="code-screen"></textarea>
+                        <textarea id="code-screen">{{content}}</textarea>
                 </div>
                 <div class="col-md-4" id="chatbox">
                         <div class="card border-dark">
@@ -37,23 +37,38 @@
 
 </div>
 <input type="hidden" id="roomId" value="{{roomId}}">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"
-        integrity="sha512-ynXrDC1C/24meHduKhg/aPPd5xL1PBd3FKffQK8v4mXhBJUmf5dE00zzPhIi18NAGHoCp0VVWWWZa1FMTPNpJQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/javascript/javascript.min.js"
-        integrity="sha512-bUk2sux3P7uLquCvq468k9PZKhxds682+NJUbMr288xoDrPPHHZH9H9CsZDJhEdgUR/2OVaAyi9YwygcAXWLhw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/javascript/javascript.min.js"></script>
+
+<script src="/plugins/ot/ot.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-        const socket = io.connect('http://localhost:3000');
+var EditorClient = ot.EditorClient;
+var SocketIOAdapter = ot.SocketIOAdapter;
+var CodeMirrorAdapter = ot.CodeMirrorAdapter;
 
-        const editor = CodeMirror.fromTextArea(document.getElementById("code-screen"), {
-                lineNumbers: true,
-                theme: "monokai",
-        });
+var socket = io.connect('http://localhost:3000');
+var editor = CodeMirror.fromTextArea(document.getElementById("code-screen"), {
+lineNumbers: true,
+theme: "monokai"
+});
+    var code = $('#code-screen').val();
+        var cmCient;
+  function init(str, revision, clients, serverAdapter) {
+    if (!code) {
+    editor.setValue(str);
 
+    }
+    cmClient = window.cmClient = new EditorClient(
+      revision, clients, serverAdapter, new CodeMirrorAdapter(editor)
+    );
+  };
+
+    socket.on('doc', function(obj) {
+    init(obj.str, obj.revision, obj.clients, new SocketIOAdapter(socket));
+  });
         var username = $("#chatbox-username").val();
 
         if (username === "") {
@@ -62,19 +77,16 @@
                 $("#chatbox-username").text(username);
         }
 
-        const roomId = $("#roomId").val();
+var roomId = $('#roomId').val();
+  socket.emit('joinRoom', {room: roomId, username: username});
 
-        socket.emit("joinRoom", { room: roomId });
-
-
-        const userMessage = function (name, text) {
-                return (
-                        '<li class="media"><div class="media-body"><div class="media">' +
-                        '<div class="media-body">' +
-                        '<b>' + name + '</b> : ' + text + '<hr/> </div> </div></div></li>'
-                );
-        };
-
+  var userMessage = function(name, text) {
+    return ('<li class="media"> <div class="media-body"> <div class="media">' +
+      '<div class="media-body"' +
+      '<b>' + name + '</b> : ' + text +
+      '<hr/> </div></div></div></li>'
+    );
+  };
         const sendMessage = function () {
                 const message = $("#chat-input").val();
                 if (message !== "") {
